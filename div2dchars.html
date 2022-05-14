@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D-CHARS-ENGINE</title>
+    <script>
+        const HEIGHT = 33;
+        const WIDTH = 128;// for browser 128 width = 60 rem;
+    </script> 
+    <style>
+        body{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #root{
+            max-width: 60rem;;
+            max-height: 33rem;
+            /*border: 1px solid black;*/
+            font-family: monospace;
+        }
+    </style>
+       
+</head>
+<body>
+    <p id="root">
+        hello
+    </p>
+</body>
+</html>
+
+<script>
+const print = (WIDTH, HEIGHT, positions, CHAR)=>{
+        let result = [];
+        let resultI = 0;
+    
+        // difining existence of screen
+        // print first a blank screen
+        // background char is CHAR
+        for (let height = 0; height < HEIGHT; height++) {
+            for (let width = 0; width < WIDTH ; width++) {
+                // SET RESULT ARRAY AS ALL BLANK CHAR
+                result[resultI]= CHAR;
+                resultI ++;
+            }
+            result[resultI]= '\n';
+            resultI ++;
+        }
+    
+        // elements
+        let left = 0 ;
+        let top = 0 ;
+
+        // init char for printing elements
+        let el_CHAR = ' ';
+    
+        // put elements
+        positions.forEach(e => {
+            left = e[0] +1;
+            top = e[1];
+            sizeX = e[2];
+            sizeY = e[3];
+            el_CHAR = e[4];
+
+            // begin of top left
+            let top_left = (top * WIDTH ) + left ;
+
+            // funtction to skip rows based on '\n'
+            const height = (relativePosition) =>{
+                for (let i = 0; i < sizeY * WIDTH; i+= WIDTH +1) {
+                    if(result[relativePosition + i] == '\n'){
+                        relativePosition += 1;
+                        break;
+                    }            
+                    result[relativePosition + i] = el_CHAR;
+                }
+            }
+
+            // print x row per row
+            for (let i = 0; i < sizeX; i++) {
+                // check if border of right side
+                if(result[top_left + i] == '\n'){
+                    top_left += 1;
+                    break;
+                }
+                // set in array new position
+                result[top_left + i] = el_CHAR;
+                
+                // ...() same...
+                // print 1 column
+                height(top_left + i);
+            }
+        });
+        return result;
+    }
+
+//  @   #   #   #   #   #   #   #
+//  @   DEFINE VITAL VARIABLES
+
+
+//  @   !   !   !   !   !   !   !   !   !   !   !   !
+//  @   all grafics need to be dropped in this array
+let ELEMENTS_BUNCH = [/*[0,0,0,0]*/];
+
+//  @   
+//  @   if report needed
+let REPORT = "";
+
+//  @   
+//  @   DEFINING OBJECTS
+//          y           x
+let y_ = 10;
+const obj = {
+    x:1,
+    y:y_,
+    sizeX:4,
+    sizeY:5,
+    speedX:1,
+    speedY:0,
+    type:"0",
+    collision:false,
+    get:function(){
+        return {
+            x:this.x , 
+            y:this.y , 
+            sizeX:this.sizeX , 
+            sizeY:this.sizeY , 
+            grafic:this.grafic
+        }
+    },
+    //         x   y   w   h    c             x   y   w   h    c           
+    grafic:[ [ 0+y_ , y_ , 2 , 5 , '>' ],[ y_+ 2 , y_+1 , 2 , 3 , '>' ] ]
+}
+
+// coordinates
+//           x        y
+
+let obj2_= [ WIDTH-4 , 0 ];
+
+const obj2 = {
+    x:obj2_[0],
+    y:obj2_[1],
+    sizeX:4,
+    sizeY:5,
+    speedX:-1,
+    speedY:1,
+    type:"0",
+    collision:false,
+    get:function(){
+        return {
+            x:this.x , 
+            y:this.y , 
+            sizeX:this.sizeX , 
+            sizeY:this.sizeY , 
+            grafic:this.grafic
+        }
+    },
+    //[x,y,w,h,'c']
+    grafic:[[obj2_[0],obj2_[1] , 2 ,5,'2'], [obj2_[0]-1 , obj2_[1] +1 , 2 ,3,'2']],
+}
+
+// lad array for print throught OBJECTS[]
+const others = [];
+for (let i = 0; i < 10000; i + 2) {
+    const other = {
+        x:obj2_[0],
+        y:Math.floor(Math.random() * 3),
+        sizeX:4,
+        sizeY:5,
+        speedX:Math.floor(Math.random() * 3 * -1),
+        speedY:Math.floor(Math.random() * 3),
+        type:"0",
+        collision:false,
+        get:function(){
+            return {
+                x:this.x , 
+                y:this.y , 
+                sizeX:this.sizeX , 
+                sizeY:this.sizeY , 
+                grafic:this.grafic
+            }
+        },
+        //[x,y,w,h,'c']
+        grafic:[[obj2_[0],obj2_[1] , 2 ,5,'o'], [obj2_[0]-1 , obj2_[1] +1 , 2 ,3,'0']],
+    }
+    others.push(other);
+    i++;
+
+    const obj = {
+        x:0,
+        y:Math.floor(Math.random() * 3),
+        sizeX:4,
+        sizeY:5,
+        speedX:Math.floor(Math.random() * 3 * -1),
+        speedY:Math.floor(Math.random() * 3),
+        type:"0",
+        collision:false,
+        get:function(){
+            return {
+                x:this.x , 
+                y:this.y , 
+                sizeX:this.sizeX , 
+                sizeY:this.sizeY , 
+                grafic:this.grafic
+            }
+        },
+        //         x   y   w   h    c             x   y   w   h    c           
+        grafic:[ [ 0 , 0 , 2 , 5 , '>' ],[ 2 , 1 , 2 , 3 , '>' ] ]
+    }
+
+    others.push(obj);
+    i++
+}
+
+//  @   
+//  @   CREATE OBJECTS ARRAY
+const OBJECTS=[];
+
+let i = 0;
+setInterval(()=>{
+    OBJECTS.push(others[i]);
+    i++;
+},200);
+
+OBJECTS.push(obj);
+OBJECTS.push(obj2);
+
+//  @
+//  @   SET CHARACHTER FORMING BACKGROUND
+const CHAR = ' ';
+
+//  @
+//  @   SET FRAME RATE
+let FRAME_RATE = 60; // ms
+
+//  @
+//  @   COLLISION DETECTION
+let collision = false;
+
+//  @
+//  @   CASE OF RUN IN THE BROWSER
+const root = document.getElementById("root");
+let result_string_for_div = "";
+
+
+//  @
+//  @   GAME LOOP
+setInterval(()=>{
+
+    // change  DIRECTION
+    OBJECTS.forEach( (x,i) =>{
+    
+        // reset x and y locations
+        x.y = x.y + x.speedY ;
+        x.x = x.x + x.speedX ;
+
+        // GUARDING FOR DIRECTION
+        OBJECTS[i] = borders(x);
+        
+        collisionDetection(i, OBJECTS);
+        
+        if(!OBJECTS[i].collision){
+    
+            REPORT = `${x.x + x.sizeX} = ${WIDTH} :: ${x.y + x.sizeY} = ${HEIGHT} :: COLLISION = ${collision} `;
+        //  @
+        //  @   SET POSITION TO OBJ.GRAFIC []
+            x.get().grafic.forEach(a => {
+                a[0] += x.speedX + x.speedY; // compensate \n chars, every x row has an \n char at the end
+                a[1] += x.speedY;
+                ELEMENTS_BUNCH.push(a);
+            });
+
+        }else{
+            OBJECTS.splice(i, 1);
+        }
+    });
+
+    //  @
+    //  @   PRINT 
+    result2 = print ( 
+        WIDTH,
+        HEIGHT,
+        ELEMENTS_BUNCH,
+        CHAR
+    );
+    // CONSOLE.LOG() PRINTS THE WINDOW
+    // console.log('\n',REPORT);
+    console.log(result2.join(""));
+
+    for(var i = 0; i < result2.length; i++){
+       result2[i] = result2[i].replace(' ', "&nbsp;");
+    }
+
+    result_string_for_div = result2.join("");
+    
+    // for browser
+    root.innerHTML = "";
+    root.innerHTML = result_string_for_div;
+
+    ELEMENTS_BUNCH = [];
+
+}, FRAME_RATE);
+//  @
+//  @   END OF GAME LOOP
+
+
+
+
+//  @   #   #   #   #   #   #   #
+//  @   USEFUL FUNCTIONS
+
+function borders( obj ) {
+    //`${x.x + x.sizeX} = ${WIDTH} :: ${x.y + x.sizeY} = ${HEIGHT} `;
+
+    if (obj.x + obj.sizeX >= WIDTH || obj.x <= 0) {
+        obj.speedX = obj.speedX * -1;
+        obj.x = obj.x + obj.speedX ; 
+    }
+
+
+    if (obj.y + obj.sizeY >= HEIGHT || obj.y <= 0) {
+        obj.speedY = obj.speedY * -1; 
+        obj.y = obj.y + obj.speedY ;
+    }
+
+    return obj;
+
+}
+
+function collisionDetection( index , obj_arr ) {
+    let collision = false;
+    const el = obj_arr[index];
+    let row = false;
+    let column = false;
+
+    obj_arr.forEach((o,i)=>{
+        if(i != index){
+            // compare x
+            if ( (el.x + el.sizeX > o.x ) &&  ( el.x < o.x + o.sizeX  )  ) {
+                row = true;
+            }
+            if ( (el.y + el.sizeY > o.y ) &&  ( el.y < o.y + o.sizeY  )  ) {
+                column = true;
+            }
+        }
+
+        if (row && column) {
+            collision = true;
+            obj_arr[i].collision = true;
+            obj_arr[index].collision = true;
+            i = obj_arr.length;
+        }
+        row = false ; column = false;
+
+    });
+
+    return collision;
+}
+
+</script>
