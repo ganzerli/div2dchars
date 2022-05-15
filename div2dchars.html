@@ -124,10 +124,10 @@ for (let i = 0; i < 10000; i + 2) {
     const other = {
         x:x,
         y:y,
-        sizeX:4,
+        sizeX:5,
         sizeY:5,
-        speedX:Math.floor(Math.random() * 4 * -1),
-        speedY:Math.floor(Math.random() * 4),
+        speedX:Math.floor(Math.random()* -1 * 2) -1 ,
+        speedY:Math.floor(Math.random() * 2),
         type:"0",
         collision:false,
         get:function(){
@@ -140,7 +140,7 @@ for (let i = 0; i < 10000; i + 2) {
             }
         },
         //[x,y,w,h,'c']
-        grafic:[[x + y , y , 2 ,5,'o'], [x + y -1 , y+1 , 2 ,3,'0']],
+        grafic:[[x + y , y , 2 ,5,'+'], [x + y -1 , y+1 , 2 ,3,'#']],
     }
     others.push(other);
     i++;
@@ -150,10 +150,10 @@ for (let i = 0; i < 10000; i + 2) {
     const fromLeft = {
         x:x,
         y:y,
-        sizeX:4,
-        sizeY:5,
-        speedX:Math.floor(Math.random() * 3) + 1,
-        speedY:Math.floor(Math.random() * 3) + 1,
+        sizeX:2,
+        sizeY:4,
+        speedX:Math.floor(Math.random() * 2) + 1,
+        speedY:Math.floor(Math.random() * 2) ,
         type:"0",
         collision:false,
         get:function(){
@@ -166,7 +166,7 @@ for (let i = 0; i < 10000; i + 2) {
             }
         },
         //         x   y   w   h    c             x   y   w   h    c           
-        grafic:[ [ x , y , 2 , 5 , '>' ],[ x+3, y+1 , 2 , 3 , '>' ] ]
+        grafic:[ [ x , y , 2 , 5 , 'X' ],[ x+3, y+1 , 2 , 3 , 'D' ] ]
     }
 
     others.push(fromLeft);
@@ -181,7 +181,7 @@ let i = 0;
 setInterval(()=>{
     OBJECTS.push(others[i]);
     i++;
-},200);
+},500);
 
 //  @
 //  @   SET CHARACHTER FORMING BACKGROUND
@@ -189,7 +189,7 @@ const CHAR = ' ';
 
 //  @
 //  @   SET FRAME RATE
-let FRAME_RATE = 60; // ms
+let FRAME_RATE = 80; // ms
 
 //  @
 //  @   COLLISION DETECTION
@@ -200,14 +200,19 @@ let collision = false;
 const root = document.getElementById("root");
 let result_string_for_div = "";
 
+function rnd(n){
+    return Math.floor( Math.random()*n);
+}
+
 
 //  @
 //  @   GAME LOOP
 setInterval(()=>{
 
+    ELEMENTS_BUNCH = [];
     // change  DIRECTION
     OBJECTS.forEach( (x,i) =>{
-    
+
         // reset x and y locations
         x.y = x.y + x.speedY ;
         x.x = x.x + x.speedX ;
@@ -217,9 +222,12 @@ setInterval(()=>{
         
         collisionDetection(i, OBJECTS);
         
-        if(!OBJECTS[i].collision){
-    
-            REPORT = `${x.x + x.sizeX} = ${WIDTH} :: ${x.y + x.sizeY} = ${HEIGHT} :: COLLISION = ${collision} `;
+        if(!x.collision){
+            // get x and y from grafic
+            let minX = 9999999;
+            let minY = 9999999;
+
+            REPORT = `${x.x}`;
         //  @
         //  @   SET POSITION TO OBJ.GRAFIC []
             x.get().grafic.forEach(a => {
@@ -228,19 +236,25 @@ setInterval(()=>{
                 ELEMENTS_BUNCH.push(a);
             });
 
-        }else{
-            OBJECTS.splice(i, 1);
+        }
+    });
+
+    OBJECTS.forEach( (x,i) =>{
+        if(x.collision){
+            OBJECTS.splice(i,1);
         }
     });
 
     //  @
     //  @   PRINT 
+
     result2 = print ( 
         WIDTH,
         HEIGHT,
         ELEMENTS_BUNCH,
         CHAR
     );
+
     // CONSOLE.LOG() PRINTS THE WINDOW
     // console.log('\n',REPORT);
     console.log(result2.join(""));
@@ -254,8 +268,6 @@ setInterval(()=>{
     // for browser
     root.innerHTML = "";
     root.innerHTML = result_string_for_div;
-
-    ELEMENTS_BUNCH = [];
 
 }, FRAME_RATE);
 //  @
