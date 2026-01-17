@@ -5,33 +5,62 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2D-CHARS-ENGINE</title>
-    <script>
-        const HEIGHT = 33;
-        const WIDTH = 128;// for browser 128 width = 60 rem;
-    </script> 
+
     <style>
-        body{
+        *{
+            margin:0;
+            padding:0;
+            box-sizing: border-box;
+        }
+        #header{
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: black;
         }
-        #root{
-            max-width: 60rem;;
-            max-height: 33rem;
+        #charsGraficElement{
+            /*max-width: 60rem;
+            max-height: 33rem; */
             /*border: 1px solid black;*/
+            width: 100vw;
+            height: 100vh;
             font-family: monospace;
             color: white;
+            background-color: black;
+            font-size: .8rem;
         }
+
     </style>
        
 </head>
 <body>
-    <p id="root">
-        hello
-    </p>
+    <header id="header">
+        <span id="charsGraficElement">
+            hello
+        </span>
+    </header>
 </body>
 </html>
+
+
+
+<script>
+    const graficContainer = document.querySelector("#charsGraficElement")
+
+    var graficFontSize = parseFloat(getComputedStyle(graficContainer).fontSize) ;
+
+    const graficWidth = graficContainer.offsetWidth
+    const graficHeight = graficContainer.offsetHeight
+    
+    // also font-family: monospace has the width and height of chasr the same px..
+    // that is a good rati to apply directly the style of the html element containing the grafic. 
+    const WIDTH =  Math.round ( (graficWidth / graficFontSize) * 1.65 ) 
+    const HEIGHT =  Math.round ( (graficHeight / graficFontSize) * 0.84 )
+
+</script> 
+
+
+
+
 
 <script>
 const print = (WIDTH, HEIGHT, positions, CHAR)=>{
@@ -104,6 +133,7 @@ const print = (WIDTH, HEIGHT, positions, CHAR)=>{
 
 //  @   !   !   !   !   !   !   !   !   !   !   !   !
 //  @   all grafics need to be dropped in this array
+//  @   a grafic element is made of 1 or more rectangles
 let ELEMENTS_BUNCH = [/*[0,0,0,0]*/];
 
 //  @   
@@ -113,20 +143,24 @@ let REPORT = "";
 //  @   
 //  @   DEFINING OBJECTS
 
-let x= WIDTH-4;
+let x;
 let y;
 
-const others = [];
+
+// there is already 10000 available js representation objects of the grafic
+// they are then added in time interval, to then be on the screen
+const available = [];
 for (let i = 0; i < 10000; i + 2) {
-    y = Math.floor(Math.random() * 10) * 3;
+
+    y = Math.floor(Math.random() * ( HEIGHT - 5 ) ) ;
     x = WIDTH - 4;
     
-    const other = {
+    const fromRight = {
         x:x,
         y:y,
-        sizeX:5,
+        sizeX:4,
         sizeY:5,
-        speedX:Math.floor(Math.random()* -1 * 2) -1 ,
+        speedX:Math.floor(Math.random()* -1 * 3) -1 ,
         speedY:Math.floor(Math.random() * 2),
         type:"0",
         collision:false,
@@ -139,20 +173,21 @@ for (let i = 0; i < 10000; i + 2) {
                 grafic:this.grafic
             }
         },
+        // when printing is always to mind the \n , so x has to be + y, for now
         //[x,y,w,h,'c']
         grafic:[[x + y , y , 2 ,5,'+'], [x + y -1 , y+1 , 2 ,3,'#']],
     }
-    others.push(other);
+    available.push(fromRight);
     i++;
 
-    y = Math.floor(Math.random() * 10) * 3;
-    x = y +1; // adding \n chars
+    y = Math.floor(Math.random() * (HEIGHT -5) ) ;
+    x = 0; // adding \n chars
     const fromLeft = {
         x:x,
         y:y,
-        sizeX:2,
-        sizeY:4,
-        speedX:Math.floor(Math.random() * 2) + 1,
+        sizeX:4,
+        sizeY:5,
+        speedX:Math.floor(Math.random() * 3) + 1,
         speedY:Math.floor(Math.random() * 2) ,
         type:"0",
         collision:false,
@@ -165,11 +200,13 @@ for (let i = 0; i < 10000; i + 2) {
                 grafic:this.grafic
             }
         },
+        
+        // when printing is always to mind the \n , so x has to be + y, for now
         //         x   y   w   h    c             x   y   w   h    c           
-        grafic:[ [ x , y , 2 , 5 , 'X' ],[ x+3, y+1 , 2 , 3 , 'D' ] ]
+        grafic:[ [ x + y , y , 2 , 5 , 'X' ],[ x+ y +3, y+1 , 2 , 3 , 'D' ] ]
     }
 
-    others.push(fromLeft);
+    available.push(fromLeft);
     i++
 }
 
@@ -179,9 +216,9 @@ const OBJECTS=[];
 
 let i = 0;
 setInterval(()=>{
-    OBJECTS.push(others[i]);
+    OBJECTS.push(available[i]);
     i++;
-},500);
+},400);
 
 //  @
 //  @   SET CHARACHTER FORMING BACKGROUND
@@ -189,7 +226,7 @@ const CHAR = ' ';
 
 //  @
 //  @   SET FRAME RATE
-let FRAME_RATE = 80; // ms
+let FRAME_RATE = 50; // ms
 
 //  @
 //  @   COLLISION DETECTION
@@ -197,7 +234,7 @@ let collision = false;
 
 //  @
 //  @   CASE OF RUN IN THE BROWSER
-const root = document.getElementById("root");
+const root = document.getElementById("charsGraficElement");
 let result_string_for_div = "";
 
 function rnd(n){
